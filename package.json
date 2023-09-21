@@ -1,0 +1,20 @@
+{
+  "name": "chess-online",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hephaestus01/chess-online.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hephaestus01/chess-online/issues"
+  },
+  "homepage": "https://github.com/Hephaestus01/chess-online#readme"
+}
