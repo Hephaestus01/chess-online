@@ -1,5 +1,6 @@
 import { io } from "socket.io-client"; // import connection function
 
-const socket = io('localhost:8080'); // initialize websocket connection
+// Replace 'localhost:8080' with your AWS server's public IP address or domain name
+const socket = io('http://chess-server-dev.us-west-2.elasticbeanstalk.com:8080'); // initialize websocket connection
 
 export default socket;
