@@ -49,6 +49,25 @@ io.on("connection", (socket) => {
     callback(roomId); // <- 4 respond with roomId to client by calling the callback function from the client
   });
 
+  socket.on("disconnect", () => {
+    const gameRooms = Array.from(rooms.values()); // <- 1
+
+    gameRooms.forEach((room) => {
+      // <- 2
+      const userInRoom = room.players.find((player) => player.id === socket.id); // <- 3
+
+      if (userInRoom) {
+        if (room.players.length < 2) {
+          // if there's only 1 player in the room, close it and exit.
+          rooms.delete(room.roomId);
+          return;
+        }
+
+        socket.to(room.roomId).emit("playerDisconnected", userInRoom); // <- 4
+      }
+    });
+  });
+
   // listen to joinRoom event
   socket.on("joinRoom", async (args, callback) => {
     // check if room exists and has a player waiting
@@ -102,6 +121,19 @@ io.on("connection", (socket) => {
 
     // emit an 'opponentJoined' event to the room to tell the other player that an opponent has joined
     socket.to(args.roomId).emit("opponentJoined", roomUpdate);
+  });
+
+  socket.on("closeRoom", async (data) => {
+    socket.to(data.roomId).emit("closeRoom", data); // <- 1 inform others in the room that the room is closing
+
+    const clientSockets = await io.in(data.roomId).fetchSockets(); // <- 2 get all sockets in a room
+
+    // loop over each socket client
+    clientSockets.forEach((s) => {
+      s.leave(data.roomId); // <- 3 and make them leave the room on socket.io
+    });
+
+    rooms.delete(data.roomId); // <- 4 delete room from rooms map
   });
 
   socket.on("move", (data) => {

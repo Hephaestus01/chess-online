@@ -16,7 +16,6 @@ import {
   Box,
 } from "@mui/material";
 
-
 export default function Game({ players, room, orientation, cleanup }) {
   const chess = useMemo(() => new Chess(), []);
   const [fen, setFen] = useState(chess.fen());
@@ -90,46 +89,56 @@ export default function Game({ players, room, orientation, cleanup }) {
     });
   }, [makeAMove]);
 
+  useEffect(() => {
+    socket.on("playerDisconnected", (player) => {
+      setOver(`${player.username} has disconnected`); // set game over
+    });
+  }, []);
+
   return (
-      <Stack>
-    <Card>
-      <CardContent>
-        <Typography variant="h5">Room ID: {room}</Typography>
-      </CardContent>
-    </Card>
-    <Stack flexDirection="row" sx={{ pt: 2 }}>
-      <div className="board" style={{
-        maxWidth: 600,
-        maxHeight: 600,
-        flexGrow: 1,
-      }}>
-        <Chessboard
-          position={fen}
-          onPieceDrop={onDrop}
-          boardOrientation={orientation}
-        />
-      </div>
-      {players.length > 0 && (
-        <Box>
-          <List>
-            <ListSubheader>Players</ListSubheader>
-            {players.map((p) => (
-              <ListItem key={p.id}>
-                <ListItemText primary={p.username} />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      )}
+    <Stack>
+      <Card>
+        <CardContent>
+          <Typography variant="h5">Room ID: {room}</Typography>
+        </CardContent>
+      </Card>
+      <Stack flexDirection="row" sx={{ pt: 2 }}>
+        <div
+          className="board"
+          style={{
+            maxWidth: 600,
+            maxHeight: 600,
+            flexGrow: 1,
+          }}
+        >
+          <Chessboard
+            position={fen}
+            onPieceDrop={onDrop}
+            boardOrientation={orientation}
+          />
+        </div>
+        {players.length > 0 && (
+          <Box>
+            <List>
+              <ListSubheader>Players</ListSubheader>
+              {players.map((p) => (
+                <ListItem key={p.id}>
+                  <ListItemText primary={p.username} />
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        )}
+      </Stack>
+      <CustomDialog // Game Over CustomDialog
+        open={Boolean(over)}
+        title={over}
+        contentText={over}
+        handleContinue={() => {
+          socket.emit("closeRoom", { roomId: room });
+          cleanup();
+        }}
+      />
     </Stack>
-    <CustomDialog // Game Over CustomDialog
-      open={Boolean(over)}
-      title={over}
-      contentText={over}
-      handleContinue={() => {
-        setOver("");
-      }}
-    />
-  </Stack>
   );
 }
