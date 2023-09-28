@@ -12,7 +12,10 @@ const port = process.env.PORT || 8080;
 
 // upgrade http server to websocket server
 const io = new Server(server, {
-  cors: "*", // allow connection from any origin
+  cors: {
+    origin: "https://main--lambent-lolly-23baae.netlify.app",
+    methods: ["GET", "POST"],
+  },
 });
 
 const rooms = new Map();
